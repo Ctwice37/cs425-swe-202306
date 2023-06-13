@@ -1,6 +1,11 @@
 package edu.miu.cs.cs425.fairfieldlibraryapp.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 @Entity
 @Table(name = "publishers")
@@ -8,8 +13,23 @@ public class Publisher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer publisherId;
+
+//    @Column(unique = true)
+//    private String publisherNumber;
+
+    @Column(nullable = false)
+    @NotNull(message = "Name is required and cannot be null")
+    @NotEmpty(message = "Name is required, cannot be null or empty string") // ""
+    @NotBlank(message = "Name is required, cannot be null or empty string or blank spaces") // "  "
     private String name;
     private String contactPhoneNumber;
+
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinColumn(name = "primary_address_id")
+    private Address primaryAddress;
+
+    @OneToMany(mappedBy = "publisher")
+    private List<Book> books;
 
     public Publisher(Integer publisherId, String name, String contactPhoneNumber) {
         this.publisherId = publisherId;
@@ -48,12 +68,29 @@ public class Publisher {
         this.contactPhoneNumber = contactPhoneNumber;
     }
 
+    public Address getPrimaryAddress() {
+        return primaryAddress;
+    }
+
+    public void setPrimaryAddress(Address primaryAddress) {
+        this.primaryAddress = primaryAddress;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
     @Override
     public String toString() {
         return "Publisher{" +
                 "publisherId=" + publisherId +
                 ", name='" + name + '\'' +
                 ", contactPhoneNumber='" + contactPhoneNumber + '\'' +
+                ", address='" + primaryAddress + '\'' +
                 '}';
     }
 }
